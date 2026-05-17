@@ -1,5 +1,5 @@
-// STEP 5: DATA STRUCTURE - Arrays & Objects//
-let events = [
+// DATA STRUCTURE - Arrays & Objects
+const defaultEvents = [
   {
     id: 1,
     title: "AI Bootcamp",
@@ -22,81 +22,26 @@ let events = [
     registered: 5,
   },
 ];
-// ============================================
-// STEP 8: ADD EVENT FORM + VALIDATION
-// ============================================
 
-document.getElementById("add-event-btn").addEventListener("click", function (e) {
-  e.preventDefault();
 
-  const title = document.getElementById("event-title").value.trim();
-  const category = document.getElementById("event-category").value.trim();
-  const seats = parseInt(document.getElementById("event-seats").value);
-  const errorMsg = document.getElementById("form-error");
+// LOCAL STORAGE - Load Data on Page Start
 
-  // ---- VALIDATION ----
-  if (!title) {
-    errorMsg.textContent = "⚠️ Please enter an event title.";
-    errorMsg.classList.remove("hidden");
-    return;
+function loadFromLocalStorage() {
+  const saved = localStorage.getItem("events");
+  if (saved) {
+    return JSON.parse(saved);
   }
+  return defaultEvents;
+}
 
-  if (!category) {
-    errorMsg.textContent = "⚠️ Please select a category.";
-    errorMsg.classList.remove("hidden");
-    return;
-  }
+function saveToLocalStorage() {
+  localStorage.setItem("events", JSON.stringify(events));
+}
 
-  if (!seats || seats < 1 || isNaN(seats)) {
-    errorMsg.textContent = "⚠️ Please enter a valid number of seats (minimum 1).";
-    errorMsg.classList.remove("hidden");
-    return;
-  }
+let events = loadFromLocalStorage();
 
-  // ---- CLEAR ERROR ----
-  errorMsg.textContent = "";
-  errorMsg.classList.add("hidden");
 
-  // ---- CREATE NEW EVENT OBJECT ----
-  const newEvent = {
-    id: Date.now(),
-    title: title,
-    category: category,
-    seats: seats,
-    registered: 0,
-  };
-
-  // ---- ADD TO ARRAY using push() ----
-  events.push(newEvent);
-
-  // ---- SAVE & RENDER ----
-  saveToLocalStorage();
-  renderEvents();
-
-  // ---- CLEAR FORM FIELDS ----
-  document.getElementById("event-title").value = "";
-  document.getElementById("event-category").value = "";
-  document.getElementById("event-seats").value = "";
-});
-renderEvents();
-
-// ============================================
-// STEP 9: SEARCH FUNCTIONALITY
-// ============================================
-
-document.getElementById("search-input").addEventListener("keyup", function () {
-  const searchValue = this.value.trim().toLowerCase();
-
-  const filteredEvents = events.filter((event) => {
-    return (
-      event.title.toLowerCase().includes(searchValue) ||
-      event.category.toLowerCase().includes(searchValue)
-    );
-  });
-
-  renderEvents(filteredEvents);
-});
-// STEP 6: DOM MANIPULATION - Render Events //
+// DOM MANIPULATION - Render Events
 
 function renderEvents(filteredEvents = events) {
   const container = document.getElementById("events-container");
@@ -117,9 +62,9 @@ function renderEvents(filteredEvents = events) {
       </div>
 
       <div class="text-sm text-gray-500 flex flex-col gap-1">
-        <p>🪑 Total Seats: <span class="font-semibold text-gray-700">${event.seats}</span></p>
-        <p>✅ Registered: <span class="font-semibold text-green-600">${event.registered}</span></p>
-        <p>🔖 Remaining: <span class="font-semibold ${isFull ? "text-red-500" : "text-yellow-500"}">${remaining}</span></p>
+        <p> Total Seats: <span class="font-semibold text-gray-700">${event.seats}</span></p>
+        <p> Registered: <span class="font-semibold text-green-600">${event.registered}</span></p>
+        <p> Remaining: <span class="font-semibold ${isFull ? "text-red-500" : "text-yellow-500"}">${remaining}</span></p>
       </div>
 
       ${isFull ? '<p class="text-red-500 text-xs font-semibold text-center">Event is Full</p>' : ""}
@@ -147,9 +92,25 @@ function renderEvents(filteredEvents = events) {
   updateStats();
 }
 
-// ============================================
-// STEP 7: REGISTER FOR AN EVENT
-// ============================================
+// UPDATE STATISTICS using reduce()
+
+function updateStats() {
+  const totalEvents = events.length;
+
+  const totalRegistered = events.reduce((sum, event) => {
+    return sum + event.registered;
+  }, 0);
+
+  const totalRemaining = events.reduce((sum, event) => {
+    return sum + (event.seats - event.registered);
+  }, 0);
+
+  document.getElementById("stat-total-events").textContent = totalEvents;
+  document.getElementById("stat-total-registered").textContent = totalRegistered;
+  document.getElementById("stat-total-seats").textContent = totalRemaining;
+}
+
+// REGISTER FOR AN EVENT
 
 function registerEvent(id) {
   const event = events.find((e) => e.id === id);
@@ -183,20 +144,68 @@ function cancelEvent(id) {
   renderEvents();
 }
 
-//UPDATE STATISTICS using reduce()//
+// ADD EVENT FORM + VALIDATION
 
-function updateStats() {
-  const totalEvents = events.length;
+document.getElementById("add-event-btn").addEventListener("click", function (e) {
+  e.preventDefault();
 
-  const totalRegistered = events.reduce((sum, event) => {
-    return sum + event.registered;
-  }, 0);
+  const title = document.getElementById("event-title").value.trim();
+  const category = document.getElementById("event-category").value.trim();
+  const seats = parseInt(document.getElementById("event-seats").value);
+  const errorMsg = document.getElementById("form-error");
 
-  const totalRemaining = events.reduce((sum, event) => {
-    return sum + (event.seats - event.registered);
-  }, 0);
+  if (!title) {
+    errorMsg.textContent = " Please enter an event title.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
 
-  document.getElementById("stat-total-events").textContent = totalEvents;
-  document.getElementById("stat-total-registered").textContent = totalRegistered;
-  document.getElementById("stat-total-seats").textContent = totalRemaining;
-}
+  if (!category) {
+    errorMsg.textContent = " Please select a category.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  if (!seats || seats < 1 || isNaN(seats)) {
+    errorMsg.textContent = " Please enter a valid number of seats (minimum 1).";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  errorMsg.textContent = "";
+  errorMsg.classList.add("hidden");
+
+  const newEvent = {
+    id: Date.now(),
+    title: title,
+    category: category,
+    seats: seats,
+    registered: 0,
+  };
+
+  events.push(newEvent);
+  saveToLocalStorage();
+  renderEvents();
+
+  document.getElementById("event-title").value = "";
+  document.getElementById("event-category").value = "";
+  document.getElementById("event-seats").value = "";
+});
+
+// SEARCH FUNCTIONALITY
+
+document.getElementById("search-input").addEventListener("keyup", function () {
+  const searchValue = this.value.trim().toLowerCase();
+
+  const filteredEvents = events.filter((event) => {
+    return (
+      event.title.toLowerCase().includes(searchValue) ||
+      event.category.toLowerCase().includes(searchValue)
+    );
+  });
+
+  renderEvents(filteredEvents);
+});
+
+// INITIAL RENDER
+renderEvents();
