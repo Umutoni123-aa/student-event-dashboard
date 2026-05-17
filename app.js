@@ -23,8 +23,8 @@ let events = [
   },
 ];
 
-
-// STEP 6: DOM MANIPULATION - Render Events//
+renderEvents();
+// STEP 6: DOM MANIPULATION - Render Events //
 
 function renderEvents(filteredEvents = events) {
   const container = document.getElementById("events-container");
@@ -75,6 +75,42 @@ function renderEvents(filteredEvents = events) {
   updateStats();
 }
 
+// ============================================
+// STEP 7: REGISTER FOR AN EVENT
+// ============================================
+
+function registerEvent(id) {
+  const event = events.find((e) => e.id === id);
+
+  if (!event) return;
+
+  if (event.registered >= event.seats) {
+    alert("Sorry, this event is fully booked!");
+    return;
+  }
+
+  event.registered++;
+  saveToLocalStorage();
+  renderEvents();
+}
+
+// CANCEL A REGISTRATION
+
+function cancelEvent(id) {
+  const event = events.find((e) => e.id === id);
+
+  if (!event) return;
+
+  if (event.registered === 0) {
+    alert("No registrations to cancel for this event!");
+    return;
+  }
+
+  event.registered--;
+  saveToLocalStorage();
+  renderEvents();
+}
+
 //UPDATE STATISTICS using reduce()//
 
 function updateStats() {
@@ -92,7 +128,3 @@ function updateStats() {
   document.getElementById("stat-total-registered").textContent = totalRegistered;
   document.getElementById("stat-total-seats").textContent = totalRemaining;
 }
-
-//  INITIAL RENDER when page loads //
-
-renderEvents();
