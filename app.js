@@ -79,6 +79,23 @@ document.getElementById("add-event-btn").addEventListener("click", function (e) 
   document.getElementById("event-seats").value = "";
 });
 renderEvents();
+
+// ============================================
+// STEP 9: SEARCH FUNCTIONALITY
+// ============================================
+
+document.getElementById("search-input").addEventListener("keyup", function () {
+  const searchValue = this.value.trim().toLowerCase();
+
+  const filteredEvents = events.filter((event) => {
+    return (
+      event.title.toLowerCase().includes(searchValue) ||
+      event.category.toLowerCase().includes(searchValue)
+    );
+  });
+
+  renderEvents(filteredEvents);
+});
 // STEP 6: DOM MANIPULATION - Render Events //
 
 function renderEvents(filteredEvents = events) {
