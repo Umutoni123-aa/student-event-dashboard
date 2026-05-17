@@ -22,7 +22,62 @@ let events = [
     registered: 5,
   },
 ];
+// ============================================
+// STEP 8: ADD EVENT FORM + VALIDATION
+// ============================================
 
+document.getElementById("add-event-btn").addEventListener("click", function (e) {
+  e.preventDefault();
+
+  const title = document.getElementById("event-title").value.trim();
+  const category = document.getElementById("event-category").value.trim();
+  const seats = parseInt(document.getElementById("event-seats").value);
+  const errorMsg = document.getElementById("form-error");
+
+  // ---- VALIDATION ----
+  if (!title) {
+    errorMsg.textContent = "⚠️ Please enter an event title.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  if (!category) {
+    errorMsg.textContent = "⚠️ Please select a category.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  if (!seats || seats < 1 || isNaN(seats)) {
+    errorMsg.textContent = "⚠️ Please enter a valid number of seats (minimum 1).";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  // ---- CLEAR ERROR ----
+  errorMsg.textContent = "";
+  errorMsg.classList.add("hidden");
+
+  // ---- CREATE NEW EVENT OBJECT ----
+  const newEvent = {
+    id: Date.now(),
+    title: title,
+    category: category,
+    seats: seats,
+    registered: 0,
+  };
+
+  // ---- ADD TO ARRAY using push() ----
+  events.push(newEvent);
+
+  // ---- SAVE & RENDER ----
+  saveToLocalStorage();
+  renderEvents();
+
+  // ---- CLEAR FORM FIELDS ----
+  document.getElementById("event-title").value = "";
+  document.getElementById("event-category").value = "";
+  document.getElementById("event-seats").value = "";
+});
 renderEvents();
 // STEP 6: DOM MANIPULATION - Render Events //
 
